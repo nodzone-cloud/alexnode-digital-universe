@@ -1,0 +1,26 @@
+name: Extract website from uploaded ZIP
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract site files
+        run: |
+          set -e
+          unzip -o alexnode_universe_light.zip -d /tmp/alexnode-site
+          cp /tmp/alexnode-site/alexnode_universe_light/index.html ./index.html
+          cp /tmp/alexnode-site/alexnode_universe_light/cosmos_360.jpg ./cosmos_360.jpg
+          cp /tmp/alexnode-site/alexnode_universe_light/README_RU.txt ./README_RU.txt
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html cosmos_360.jpg README_RU.txt
+          git diff --cached --quiet || (git commit -m "Extract Digital Universe site files" && git push)
